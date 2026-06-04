@@ -1,6 +1,6 @@
 # Story 1.4: Run the loop from the command line
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 

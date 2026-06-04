@@ -43,10 +43,10 @@ story_location: _bmad-output/implementation-artifacts
 
 development_status:
   # Epic 1: The Capture → View → Complete Loop
-  epic-1: in-progress
-  1-0-initialize-the-node-project: review
-  1-1-capture-a-task: review
-  1-2-view-all-tasks: review
-  1-3-complete-a-task-by-id: review
-  1-4-run-the-loop-from-the-command-line: review
+  epic-1: done
+  1-0-initialize-the-node-project: done
+  1-1-capture-a-task: done
+  1-2-view-all-tasks: done
+  1-3-complete-a-task-by-id: done
+  1-4-run-the-loop-from-the-command-line: done
   epic-1-retrospective: optional

@@ -1,6 +1,6 @@
 # Story 1.3: Complete a task by ID
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
