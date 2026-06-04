@@ -25,5 +25,14 @@ export function createStore() {
     return [...tasks];
   }
 
-  return { add, list };
+  // complete(id) -> the completed Task, or null if no task has that id (a safe,
+  // silent no-op — not a throw). Setting done=true is idempotent.
+  function complete(id) {
+    const task = tasks.find((t) => t.id === id);
+    if (!task) return null;
+    task.done = true;
+    return task;
+  }
+
+  return { add, list, complete };
 }

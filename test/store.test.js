@@ -58,3 +58,50 @@ test('list returns a copy — mutating it does not affect the store', () => {
   first.pop();
   assert.equal(store.list().length, 1);
 });
+
+test('complete sets done=true; the task stays in the store and shows in list', () => {
+  const store = createStore();
+  store.add('a');
+  store.complete(1);
+  assert.deepEqual(store.list(), [{ id: 1, text: 'a', done: true }]);
+});
+
+test('complete returns the completed task on success', () => {
+  const store = createStore();
+  store.add('a');
+  const result = store.complete(1);
+  assert.deepEqual(result, { id: 1, text: 'a', done: true });
+});
+
+test('complete changes only the target task', () => {
+  const store = createStore();
+  store.add('a');
+  store.add('b');
+  store.complete(2);
+  assert.deepEqual(store.list(), [
+    { id: 1, text: 'a', done: false },
+    { id: 2, text: 'b', done: true },
+  ]);
+});
+
+test('complete is idempotent — re-completing keeps done=true and returns the task', () => {
+  const store = createStore();
+  store.add('a');
+  store.complete(1);
+  const second = store.complete(1);
+  assert.deepEqual(second, { id: 1, text: 'a', done: true });
+});
+
+test('complete with an unknown id returns null and changes nothing', () => {
+  const store = createStore();
+  store.add('a');
+  const result = store.complete(999);
+  assert.equal(result, null);
+  assert.deepEqual(store.list(), [{ id: 1, text: 'a', done: false }]);
+});
+
+test('complete with an unknown id does not throw', () => {
+  const store = createStore();
+  store.add('a');
+  assert.doesNotThrow(() => store.complete(999));
+});
