@@ -48,5 +48,5 @@ development_status:
   1-1-capture-a-task: review
   1-2-view-all-tasks: review
   1-3-complete-a-task-by-id: review
-  1-4-run-the-loop-from-the-command-line: backlog
+  1-4-run-the-loop-from-the-command-line: review
   epic-1-retrospective: optional
