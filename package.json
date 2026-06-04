@@ -1,0 +1,15 @@
+{
+  "name": "simple-todo",
+  "version": "1.0.0",
+  "description": "A todo app reduced to Capture → View → Complete.",
+  "type": "module",
+  "bin": {
+    "todo": "./bin/todo.js"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
