@@ -12,7 +12,7 @@ so that captured tasks become recallable and the loop is observable.
 
 ## Acceptance Criteria
 
-1. **List returns every Task, presented with id + text, completed ones struck-through.** Given a Store containing one or more Tasks, when `list` is called, then every Task is returned (including completed ones), **and** each Task's ID and text are presented, with completed Tasks rendered struck-through. [Source: epics.md#Story-1.2; PRD#FR-2]
+1. **List returns every Task, rendered as a checkbox + id + text.** Given a Store containing one or more Tasks, when `list` is called, then every Task is returned (including completed ones), **and** each line renders as `[ ] <id>. <text>` for open tasks and `[x] <id>. <text>` for completed tasks (text struck-through). The `[ ]`/`[x]` checkbox is the completion signal — no `(done)` suffix. [Source: epics.md#Story-1.2; PRD#FR-2]
 
 2. **Empty Store gives a clear "no tasks" indication, not an error.** Given an empty Store, when `list` is called, then a clear "no tasks" indication is returned, not an error. [Source: epics.md#Story-1.2; PRD#FR-2]
 
@@ -30,15 +30,15 @@ so that captured tasks become recallable and the loop is observable.
 - [x] **Task 3 (RED): Failing tests for `renderList()`** (AC: #1, #2)
   - [x] Create `test/render.test.js`. Import `renderList` from `../src/render.js`.
   - [x] Test (empty): `renderList([])` returns the no-tasks indication string `"No tasks."` (exact). [Source: AC#2]
-  - [x] Test (open tasks, plain): `renderList([{id:1,text:'a',done:false},{id:2,text:'b',done:false}])` returns `"1. a\n2. b"` (one task per line, `"<id>. <text>"`, no trailing newline). [Source: architecture.md#Format-Patterns]
-  - [x] Test (completed, plain fallback): `renderList([{id:1,text:'done thing',done:true}])` returns `"1. ~~done thing~~"` — plain-text strike-through used when ANSI is off. [Source: architecture.md#Frontend-Architecture — plain fallback]
-  - [x] Test (completed, ANSI): `renderList([{id:1,text:'x',done:true}], { ansi: true })` wraps the text in the ANSI strike-through SGR sequence: `"1. [9mx[0m"`. [Source: architecture.md#Frontend-Architecture — ANSI strike-through]
+  - [x] Test (open tasks, plain): `renderList([{id:1,text:'a',done:false},{id:2,text:'b',done:false}])` returns `"[ ] 1. a\n[ ] 2. b"` (one task per line, `"[ ] <id>. <text>"`, no trailing newline). [Source: architecture.md#Format-Patterns]
+  - [x] Test (completed, plain fallback): `renderList([{id:1,text:'done thing',done:true}])` returns `"[x] 1. ~~done thing~~"` — `[x]` checkbox plus plain-text strike-through when ANSI is off. [Source: architecture.md#Frontend-Architecture — plain fallback]
+  - [x] Test (completed, ANSI): `renderList([{id:1,text:'x',done:true}], { ansi: true })` prefixes the `[x]` checkbox and wraps the text in the ANSI strike-through SGR sequence: `"[x] 1. [9mx[0m"`. [Source: architecture.md#Frontend-Architecture — ANSI strike-through]
   - [x] Test (mixed): an open + a completed task render correctly together on their own lines.
   - [x] Run `npm test`; confirm the render tests **fail** (`render.js` doesn't exist yet).
 - [x] **Task 4 (GREEN): Implement `src/render.js`** (AC: #1, #2)
   - [x] Create `src/render.js` exporting `renderList(tasks, { ansi = false } = {})`. [Source: architecture.md#render.js]
   - [x] If `tasks` is empty → return `"No tasks."`. [Source: AC#2]
-  - [x] Otherwise map each task to a line `"<id>. <renderedText>"` and join with `"\n"` (no trailing newline). Open task → `text` unchanged. Completed task → strike-through applied to the **text**: ANSI `[9m${text}[0m` when `ansi` is true, else plain `~~${text}~~`. [Source: architecture.md#Format-Patterns; #Frontend-Architecture]
+  - [x] Otherwise map each task to a line `"<checkbox> <id>. <renderedText>"` (checkbox `[ ]` open / `[x]` done) and join with `"\n"` (no trailing newline). Open task → `text` unchanged. Completed task → strike-through applied to the **text**: ANSI `[9m${text}[0m` when `ansi` is true, else plain `~~${text}~~`. [Source: architecture.md#Format-Patterns; #Frontend-Architecture]
   - [x] `renderList` is a **pure function**: it does NOT read `process.stdout`, does NOT print, and does NOT call `process.exit`. The caller (entrypoint, Story 1.4) decides `ansi` from `process.stdout.isTTY`. [Source: architecture.md#Process-Patterns; #Enforcement-Guidelines]
   - [x] Run `npm test` until all tests pass.
 - [x] **Task 5 (REFACTOR): Tidy** (AC: #1, #2)
@@ -82,7 +82,7 @@ export function createStore() {
 - **Glossary verb is exact:** the store method is `list` — never `getAll`, `getTasks`, `all`, etc. [Source: architecture.md#Naming-Patterns]
 - **Single rendering authority:** the `"<id>. <text>"` line format and strike-through live **only** in `src/render.js`. No command or other module formats list output inline. [Source: architecture.md#Format-Patterns]
 - **`list()` returns a copy**, so callers can't mutate the store's internal array through the returned reference — the only way to change state is via the seam (`add`/`complete`). [Source: architecture.md#Architectural-Boundaries]
-- **Completion signal = strike-through** applied to the task text (PRD §4.3: "the strike-through *is* the completion signal"). This story renders it but cannot yet *set* `done` via the store — that's 1.3. **Decision:** no extra `(done)` suffix is added; the strike-through alone is the signal (keeps it minimal per the counter-metric). [Source: PRD#4.3; architecture.md#Frontend-Architecture]
+- **Completion signal = `[ ]`/`[x]` checkbox** prefix, with struck-through text on done tasks as a secondary cue (PRD §4.3: completion is visually signalled). This story renders it but cannot yet *set* `done` via the store — that's 1.3. **Decision:** no `(done)` suffix; the checkbox is the signal (keeps it minimal per the counter-metric). [Source: PRD#4.3; architecture.md#Frontend-Architecture]
 - **Pure render, no I/O:** `renderList` never touches `process.stdout`/`process.exit`/`console`. TTY detection is the entrypoint's job in Story 1.4 (it will pass `ansi: process.stdout.isTTY`). [Source: architecture.md#Process-Patterns]
 - **ESM, lowercase files, `camelCase` functions, `UPPER_SNAKE` constants. Zero dependencies** — no `chalk`/`ansi-styles`; ANSI codes are tiny string literals. [Source: architecture.md#Naming-Patterns; #Selected-Starter]
 
@@ -137,7 +137,7 @@ claude-opus-4-8[1m] (Opus 4.8, 1M context)
 
 - **`store.list()`**: returns a shallow copy (`[...tasks]`) of tasks in insertion order; mutating the returned array can't reach into the store (seam protected). `add` unchanged; store now returns `{ add, list }`.
 - **`src/render.js`** (`renderList(tasks, { ansi = false } = {})`): pure function, the single authority for list formatting. Empty → `"No tasks."`. Otherwise one line per task `"<id>. <text>"`, joined with `\n`, no trailing newline. Completed tasks struck-through on the text: ANSI SGR 9 (`\x1b[9m…\x1b[0m`) when `ansi:true`, plain `~~text~~` fallback otherwise. Strike codes are named module constants. No `console`/`process.stdout`/`process.exit` — TTY decision deferred to the entrypoint (Story 1.4).
-- Decision recorded in story: strike-through alone is the completion signal (no `(done)` suffix), per PRD §4.3 + scope-discipline.
+- Decision recorded in story: the `[ ]`/`[x]` checkbox is the completion signal (no `(done)` suffix), with struck-through text on done tasks, per the revised architecture/epics + PRD §4.3.
 - Verified struck-through rendering works before `complete` exists by passing `done:true` task literals to `renderList` (pure-function testing).
 - Zero dependencies added (no chalk); ESM throughout. No regressions — all 5 prior `add` tests still pass.
 - ACs satisfied: AC#1 (list returns all tasks; render shows id+text, completed struck-through) and AC#2 (empty store → "No tasks.", not an error).
@@ -152,3 +152,4 @@ claude-opus-4-8[1m] (Opus 4.8, 1M context)
 ### Change Log
 
 - 2026-06-04 — Story 1.2 implemented: `store.list()` + `src/render.js` (View), test-first. 13 tests green (5 add, 3 list, 5 render), exit 0. Status → review.
+- 2026-06-04 — Reconciled View to the revised checkbox list format (`[ ] <id>. <text>` / `[x] <id>. <text>`, struck-through done text) after architecture.md/epics.md were updated. Updated `render.js` + `render.test.js` + AC#1; 13 tests still green, exit 0.

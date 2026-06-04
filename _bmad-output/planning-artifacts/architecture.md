@@ -150,15 +150,16 @@ N/A — no API. The only "interface" is the CLI command surface: `add <text>` ·
 
 ### Frontend Architecture
 
-N/A — CLI. `list` renders one Task per line, **each line prefixed with the Task's sequential ID**
-so it's directly usable in `done <id>`. Completed Tasks shown with ANSI strike-through (plain
-fallback when output is not a TTY).
+N/A — CLI. `list` renders one Task per line as a **checkbox followed by the Task's sequential ID**:
+open tasks `[ ]`, completed tasks `[x]`. The ID is shown so it's directly usable in `done <id>`.
+Completed Tasks additionally get ANSI strike-through on the text (plain fallback when output is not
+a TTY). The checkbox is the primary completion signal; no redundant `(done)` suffix.
 
 Example:
 ```
-  1. Write the demo script
-  2. ~~Buy coffee~~        (done)
-  3. Rehearse the walkthrough
+  [ ] 1. Write the demo script
+  [x] 2. ~~Buy coffee~~
+  [ ] 3. Rehearse the walkthrough
 ```
 
 ### Infrastructure & Deployment
@@ -214,8 +215,10 @@ events, state management, loading states) are N/A by design.
 
 - **Task shape (canonical):** `{ id: number, text: string, done: boolean }` — these exact field
   names everywhere. Booleans are real `true`/`false`, never `0/1`.
-- **List rendering (one place):** a single `render.js` owns the line format `"<id>. <text>"`,
-  strike-through applied to `text` when `done` (TTY) with a plain fallback. No command formats output inline.
+- **List rendering (one place):** a single `render.js` owns the line format `"[ ] <id>. <text>"` for
+  open tasks and `"[x] <id>. <text>"` for done tasks, with strike-through applied to `text` when `done`
+  (TTY) and a plain fallback. The `[ ]`/`[x]` checkbox is the completion signal — no `(done)` suffix.
+  No command formats output inline.
 - **API response wrappers / date formats:** N/A.
 
 ### Process Patterns — error handling ("never crash")
@@ -255,7 +258,7 @@ simple-todo/
 ├── src/
 │   ├── store.js          # createStore() → { add, list, complete }; owns tasks[] + nextId; sole ID minter
 │   ├── task.js           # makeTask(id, text) → { id, text, done:false }  (canonical Task shape)
-│   ├── render.js         # renderList(tasks) → string; "<id>. <text>", strike-through when done (TTY-aware)
+│   ├── render.js         # renderList(tasks) → string; "[ ]/[x] <id>. <text>", strike-through when done (TTY-aware)
 │   └── errors.js         # ValidationError (thrown by store.add, identified by the entrypoint)
 └── test/
     ├── store.test.js     # unit: add (incl. empty-text reject), list, complete (incl. unknown-id no-op)
@@ -337,8 +340,8 @@ scope discipline — is actively enforced (actors rejected, no deps, N/A section
 
 ### Validation Issues Addressed
 
-One cross-artifact consistency note (not an architecture defect): `docs/implementation-flow.md` still
-shows the task-ref as "list position" — superseded by **by ID**. Flagged for a housekeeping update.
+One cross-artifact consistency note (not an architecture defect), now **resolved**: `docs/implementation-flow.md`
+was checked and already reflects task-ref = **by ID** (diagram + legend). No action needed; all artifacts agree.
 
 ### Architecture Completeness Checklist
 

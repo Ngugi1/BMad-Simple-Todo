@@ -115,7 +115,7 @@ So that captured tasks become recallable and the loop is observable.
 **Given** a Store containing one or more Tasks
 **When** `list` is called
 **Then** every Task is returned, including completed ones
-**And** each Task's ID and text are presented, with completed Tasks rendered struck-through (FR2)
+**And** each line renders as a checkbox + ID + text — open tasks `[ ] <id>. <text>`, completed tasks `[x] <id>. <text>` with the text struck-through (the checkbox is the completion signal, no `(done)` suffix) (FR2)
 
 **Given** an empty Store
 **When** `list` is called
