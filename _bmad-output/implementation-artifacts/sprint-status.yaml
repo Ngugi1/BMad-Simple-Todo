@@ -45,8 +45,8 @@ development_status:
   # Epic 1: The Capture → View → Complete Loop
   epic-1: in-progress
   1-0-initialize-the-node-project: review
-  1-1-capture-a-task: backlog
-  1-2-view-all-tasks: backlog
-  1-3-complete-a-task-by-id: backlog
+  1-1-capture-a-task: review
+  1-2-view-all-tasks: review
+  1-3-complete-a-task-by-id: ready-for-dev
   1-4-run-the-loop-from-the-command-line: backlog
   epic-1-retrospective: optional

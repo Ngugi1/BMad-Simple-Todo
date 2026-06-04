@@ -19,5 +19,11 @@ export function createStore() {
     return task;
   }
 
-  return { add };
+  // list() -> a shallow copy of all tasks (in insertion order). Returning a copy
+  // keeps the internal array reachable only through the seam.
+  function list() {
+    return [...tasks];
+  }
+
+  return { add, list };
 }
