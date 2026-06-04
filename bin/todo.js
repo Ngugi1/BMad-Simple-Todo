@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 import { createStore } from '../src/store.js';
@@ -51,7 +52,8 @@ function main() {
   process.exit(code);
 }
 
-// Run only when invoked directly (`node bin/todo.js ...`), not when imported by tests.
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+// Run only when invoked directly (`node bin/todo.js` or the linked `todo` command),
+// not when imported by tests. realpathSync resolves symlinks (e.g. an npm-link bin).
+if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
   main();
 }

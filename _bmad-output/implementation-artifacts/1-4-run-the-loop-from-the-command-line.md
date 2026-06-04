@@ -180,3 +180,4 @@ claude-opus-4-8[1m] (Opus 4.8, 1M context)
 ### Change Log
 
 - 2026-06-04 — Story 1.4 implemented: `bin/todo.js` CLI entrypoint wiring the full Capture → View → Complete loop, test-first. 29 tests green, exit 0. Status → review.
+- 2026-06-04 — Review fix (Low): main-module guard now `realpathSync(process.argv[1])`-compares so the symlinked `todo` bin (npm link) also runs `main()`. 29 tests still green, exit 0.
